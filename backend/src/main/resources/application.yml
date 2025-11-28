@@ -1,0 +1,124 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: data-reconciliation-platform
+
+  # Database Configuration
+  datasource:
+    # Oracle Configuration (Production)
+    # url: jdbc:oracle:thin:@//localhost:1521/ORCL
+    # username: reconciliation_user
+    # password: ${DB_PASSWORD}
+    # driver-class-name: oracle.jdbc.OracleDriver
+    
+    # H2 Configuration (Development)
+    url: jdbc:h2:mem:reconciliationdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    # Oracle dialect
+    # hibernate:
+    #   ddl-auto: validate
+    # properties:
+    #   hibernate:
+    #     dialect: org.hibernate.dialect.Oracle12cDialect
+    
+    # H2 dialect (Development)
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: false
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Quartz Scheduler Configuration
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: ReconciliationScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            useProperties: false
+            misfireThreshold: 60000
+            clusterCheckinInterval: 10000
+            isClustered: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 10
+            threadPriority: 5
+
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+  # File Upload Configuration
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# Application Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:YourSuperSecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong}
+    expiration: 86400000  # 24 hours in milliseconds
+  
+  reconciliation:
+    batch-size: 1000
+    thread-pool-size: 10
+    report-retention-days: 90
+    max-discrepancies-per-run: 50000
+  
+  file-storage:
+    upload-dir: ${user.home}/reconciliation-uploads
+    report-dir: ${user.home}/reconciliation-reports
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.reconciliation: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
