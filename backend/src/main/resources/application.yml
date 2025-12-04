@@ -46,22 +46,13 @@ spring:
 
   # Quartz Scheduler Configuration
   quartz:
-    job-store-type: jdbc
-    jdbc:
-      initialize-schema: always
+    job-store-type: memory
     properties:
       org:
         quartz:
           scheduler:
             instanceName: ReconciliationScheduler
             instanceId: AUTO
-          jobStore:
-            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-            useProperties: false
-            misfireThreshold: 60000
-            clusterCheckinInterval: 10000
-            isClustered: false
           threadPool:
             class: org.quartz.simpl.SimpleThreadPool
             threadCount: 10

@@ -37,7 +37,7 @@ public interface ReconciliationRunRepository extends JpaRepository<Reconciliatio
     Page<ReconciliationRun> findRunsWithDiscrepancies(Pageable pageable);
     
     @Query("SELECT r FROM ReconciliationRun r WHERE r.reconciliationConfig.id = :configId ORDER BY r.startedAt DESC")
-    Optional<ReconciliationRun> findLatestByConfigId(@Param("configId") Long configId, Pageable pageable);
+    List<ReconciliationRun> findLatestByConfigId(@Param("configId") Long configId, Pageable pageable);
     
     @Query("SELECT COUNT(r) FROM ReconciliationRun r WHERE r.status = :status")
     Long countByStatus(@Param("status") ReconciliationStatus status);
